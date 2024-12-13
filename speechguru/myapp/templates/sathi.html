@@ -11,30 +11,44 @@
         let audiochunks = [];
 
         document.getElementById('recordButton').addEventListner('click', async() => {
-            const stream = await navigator.mediaaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            mediaRecorder.start();
+            try{
+                const stream = await navigator.mediaaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
 
-            mediaRecorder.addEventListener('dataavailable', event => {
-                audioChunks.push(event.data);
-            });
-
-            mediaRecorder.addEventListener('stop', async() => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav'});
-                audioChunks = [];
-                const formData = new FormData();
-                formData.append('audio', audioBlob);
-
-                const response = await fetch('/transcribe',{
-                    methon: 'POST',
-                    body: formData
+                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
                 });
 
-                const result = await response.json();
-                document.getElementById('transcription').innerText = result.transcription;
-            });
-            document.getElementById('recordButton').disabled = true;
-            document.getElementById('stopButton').disabled = false;
+                mediaRecorder.addEventListener('stop', async() => {
+                    try{
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav'});
+                        audioChunks = [];
+                        const formData = new FormData();
+                        formData.append('audio', audioBlob);
+
+                        const response = await fetch('/transcribe',{
+                            methon: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+
+                        const result = await response.json();
+                        document.getElementById('transcription').innerText = result.transcription;
+                    } catch (error) {
+                        console.error('Error trancribing audio:', error);
+                        alert('There was an error transcribing the audio');
+                    }
+                });
+                document.getElementById('recordButton').disabled = true;
+                document.getElementById('stopButton').disabled = false;
+            } catch (error) {
+                console.error('Error accessing the audio stream:', error);
+                alert('There was an error accessing the audio stream.')
+            }
         });
         document.getElementById('stopButton').addEventListener('click', () => {
             mediaRecorder.stop();
