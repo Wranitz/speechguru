@@ -10,7 +10,7 @@
         let mediaRecorder;
         let audiochunks = [];
 
-        document.getElementById('recordButton').addEventListner('click', async() => {
+        document.getElementById('recordButton').addEventListener('click', async() => {
             try{
                 const stream = await navigator.mediaaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
