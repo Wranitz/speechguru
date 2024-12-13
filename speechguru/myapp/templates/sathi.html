@@ -8,11 +8,11 @@
 
     <script>
         let mediaRecorder;
-        let audiochunks = [];
+        let audioChunks = [];
 
         document.getElementById('recordButton').addEventListener('click', async() => {
             try{
-                const stream = await navigator.mediaaDevices.getUserMedia({ audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.start();
 
@@ -28,7 +28,7 @@
                         formData.append('audio', audioBlob);
 
                         const response = await fetch('/transcribe',{
-                            methon: 'POST',
+                            method: 'POST',
                             body: formData
                         });
 
@@ -40,7 +40,7 @@
                         document.getElementById('transcription').innerText = result.transcription;
                     } catch (error) {
                         console.error('Error trancribing audio:', error);
-                        alert('There was an error transcribing the audio');
+                        "alert('There was an error transcribing the audio');"
                     }
                 });
                 document.getElementById('recordButton').disabled = true;
