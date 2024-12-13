@@ -2,7 +2,6 @@ from django.shortcuts import render, HttpResponse
 from .models import TodoItem
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
 
 # Create your views here.
 def home(request):
@@ -19,11 +18,11 @@ def sathi(request):
 def transcribe(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            audio_data = request.body
             #Transcription logic here
             response_data = {'message': 'Transcription successful'}
             return JsonResponse(response_data)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': 'Invalid request method'}, status=405)
     else:
-        retuen JsonResponse({'error': 'Invalid request method'}, status=405)
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
