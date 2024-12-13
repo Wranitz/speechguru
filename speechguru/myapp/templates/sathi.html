@@ -7,5 +7,39 @@
     <div id="transcription"></div>
 
     <script>
+        let mediaRecorder;
+        let audiochunks = [];
+
+        document.getElementById('recordButton').addEventListner('click', async() => {
+            const stream = await navigator.mediaaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener('stop', async() => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav'});
+                audioChunks = [];
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+
+                const response = await fetch('/transcribe',{
+                    methon: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                document.getElementById('transcription').innerText = result.transcription;
+            });
+            document.getElementById('recordButton').disabled = true;
+            document.getElementById('stopButton').disabled = false;
+        });
+        document.getElementById('stopButton').addEventListener('click', () => {
+            mediaRecorder.stop();
+            document.getElementById('recordButton').disabled = false;
+            document.getElementById('stopButton').disabled = true;
+        });
     </script>
 {% endblock %}
