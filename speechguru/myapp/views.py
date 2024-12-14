@@ -15,11 +15,15 @@ def sathi(request):
     return render(request, "sathi.html")
 
 @csrf_exempt
+def modelui(request):
+    return render(request, "modelui.html")
+
+@csrf_exempt
 def transcribe(request):
     if request.method == 'POST':
         try:
             audio_data = request.body
-            #Transcription logic here
+            #Transcription logic here 
             response_data = {'message': 'Transcription successful'}
             return JsonResponse(response_data)
         except Exception as e:
