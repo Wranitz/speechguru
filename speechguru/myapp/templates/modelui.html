@@ -5,6 +5,7 @@
 <div class="container">
     <div class="left-column"> 
         <form action="/" method="POST" id="myForm" enctype="multipart/form-data" >
+            {% csrf_token %}
             <!-- Row 1: Button with List -->
             <div class="row"> <label for="selectList">Select an Option:</label> 
                 <select id="selectList" name="select_option">
@@ -62,6 +63,7 @@
                 const formData = new FormData(form); 
                 outputText.innerText = 'Loading'
                 try { 
+                    console.log(formData);
                     const response = await fetch('/', { 
                         method: 'POST', 
                         body: formData 

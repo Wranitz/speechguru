@@ -14,8 +14,18 @@ def todos(request):
 def sathi(request):
     return render(request, "sathi.html")
 
-@csrf_exempt
+
 def modelui(request):
+    if request.method == 'POST':
+        try:
+            print(request)
+            response_data = {'message': 'Prompt successful'}
+            return JsonResponse(response_data)
+        except Exception as e:
+            return JsonResponse({'error': 'Invalid request method'}, status=405)
+            return render(request, "modelui.html")
+            
+            
     return render(request, "modelui.html")
 
 @csrf_exempt
