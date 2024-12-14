@@ -16,7 +16,7 @@
             
             <!-- Row 2: Image -->
             <div class="row"> 
-                <img src="./../images/aihub.png" alt="Sample Image" class="image">
+                <img src="./../static/images/aihub.png" alt="Sample Image" class="image">
             </div>
             <!-- Row 3: Input Field and Buttons -->
             <div class="row"> 
@@ -32,7 +32,7 @@
         <div class="output">
             <h2 style="color: antiquewhite;">Answer:</h2>
             <p id="outputText" style="color: antiquewhite;" >Output Text Here</p> 
-            <img id="outputImage" src="./../images/aihub.png" alt="Output Image" class="output-image">
+            <img id="outputImage" src="./../static/images/aihub.png" alt="Output Image" class="output-image">
         </div>
     </div>
 </div>
@@ -47,9 +47,9 @@
              
             // Define the image sources based on the selected option 
             const imageSources = { 
-                "llama3.2:3b": "{% static './../images/aihub.png'%}", 
-                "llama3.2-vision": "{% static './../images/th.jpeg'%}", 
-                "qwen2.5-coder": "{% static './../images/aihub.jpeg'%}" }; 
+                "llama3.2:3b": "{% static '/images/aihub.png'%}", 
+                "llama3.2-vision": "{% static '/images/th.jpeg'%}", 
+                "qwen2.5-coder": "{% static '/images/qwen.jpeg'%}" }; 
 
 
                 // Change the image source based on the selected option 
