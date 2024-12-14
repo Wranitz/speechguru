@@ -17,15 +17,12 @@ def sathi(request):
 
 def modelui(request):
     if request.method == 'POST':
-        try:
-            print(request)
+            select_option = request.POST['select_option']
+            prompt = request.POST['text_input']
             response_data = {'message': 'Prompt successful'}
+            print(JsonResponse(response_data))
             return JsonResponse(response_data)
-        except Exception as e:
-            return JsonResponse({'error': 'Invalid request method'}, status=405)
-            return render(request, "modelui.html")
-            
-            
+          
     return render(request, "modelui.html")
 
 @csrf_exempt

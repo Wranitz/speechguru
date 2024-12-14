@@ -63,8 +63,8 @@
                 const formData = new FormData(form); 
                 outputText.innerText = 'Loading'
                 try { 
-                    console.log(formData);
-                    const response = await fetch('/', { 
+                    console.log(formData.text_input);
+                    const response = await fetch('', { 
                         method: 'POST', 
                         body: formData 
                     }); 
@@ -72,9 +72,11 @@
                     if (!response.ok) { 
                         throw new Error(`HTTP error! Status: ${response.status}`); 
                     } 
+                    print(response.text_input);
                         
                         const result = await response.json(); 
-                        if (result.output_text) { 
+                        if (response.json()) { 
+                            
                             outputText.innerText = result.output_text
                         } 
                         if (result.output_image) { 

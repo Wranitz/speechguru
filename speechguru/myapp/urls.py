@@ -6,5 +6,5 @@ urlpatterns = [
     path("todos/",views.todos, name="todos"),
     path("sathi/",views.sathi, name="sathi"),
     path("modelui/",views.modelui, name="modelui"),
-    path('transcribe/',views.transcribe, name='transcribe'),
+    path("transcribe/",views.transcribe, name='transcribe'),
 ]
