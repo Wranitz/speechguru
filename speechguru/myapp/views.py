@@ -37,3 +37,21 @@ def transcribe(request):
             return JsonResponse({'error': 'Invalid request method'}, status=405)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+
+
+
+    # sadm
+    #                document.getElementById('recordButton').disabled = true;
+    #            document.getElementById('stopButton').disabled = false;
+    #       } catch (error) {
+    #           console.error('Error accessing the audio stream:', error);
+    #           alert('There was an error accessing the audio stream.')
+    #        }
+    #    });
+    #    document.getElementById('stopButton').addEventListener('click', () => {
+    #        mediaRecorder.stop();
+    #        document.getElementById('recordButton').disabled = false;
+    #        document.getElementById('stopButton').disabled = true;
+    #    });
+    #</script>

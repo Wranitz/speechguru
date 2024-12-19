@@ -1,66 +1,107 @@
-{% extends "base.html" %} 
-{% block title %} 
-Home Page 
+{% extends "base.html" %}
+{% block title %}
+Home Page
 {% endblock %}
 
 
 {% block content %}
 
-    <h1>Real-time Speech Transcription</h1>
-    <button id="recordButton">Start Recording</button>
-    <button id="stopButton" disabled>Stop Recording</button>
-    <div id="transcription"></div>
+<h1>Real-time Speech Transcription</h1>
+<button id="recordButton">Start Recording</button>
+<button id="stopButton" disabled>Stop Recording</button>
+<div id="transcription"></div>
 
-    <script>
-        let mediaRecorder;
-        let audioChunks = [];
+<script>
+    let audioContext, source, processor, audioChunks = [];
 
-        document.getElementById('recordButton').addEventListener('click', async() => {
-            try{
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start();
+    document.getElementById('recordButton').onclick = function () {
+        // Step 1: Capture Audio
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    source = audioContext.createMediaStreamSource(stream);
+                    processor = audioContext.createScriptProcessor(1024, 1, 1);
 
-                mediaRecorder.addEventListener('dataavailable', event => {
-                    audioChunks.push(event.data);
-                });
+                    source.connect(processor);
+                    processor.connect(audioContext.destination);
 
-                mediaRecorder.addEventListener('stop', async() => {
-                    try{
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav'});
-                        const formData = new FormData();
-                        formData.append('audio', audioBlob);
+                    let silenceThreshold = 0.01; // adjust as needed
+                    let silenceDuration = 500; // ms
+                    let silenceStartTime = null;
 
-                        const response = await fetch('/transcribe/',{
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'audio/wav'
-                            },
-                            body: formData
-                        });
+                    processor.onaudioprocess = function (event) {
+                        try {
+                            const input = event.inputBuffer.getChannelData(0);
+                            let isSilent = input.every(sample => Math.abs(sample) < silenceThreshold);
 
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                            if (isSilent) {
+                                if (silenceStartTime === null) {
+                                    silenceStartTime = Date.now();
+                                } else if (Date.now() - silenceStartTime >= silenceDuration) {
+                                    // Step 3: Create Blob and FormData
+                                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                                    const formData = new FormData();
+                                    formData.append('audio', audioBlob);
+
+                                    // Step 4: Send Data using fetch
+                                    fetch('/transcribe', {
+                                        method: 'POST',
+                                        body: formData
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => console.log('Data successfully sent:', data))
+                                        .catch(error => console.error('Error sending data:', error));
+
+                                    // Step 5: Start New Recording
+                                    audioChunks = [];
+                                    silenceStartTime = null;
+                                }
+                            } else {
+                                silenceStartTime = null;
+                            }
+
+                            // Collect audio data
+                            audioChunks.push(new Float32Array(input));
+                        } catch (audioProcessingError) {
+                            console.error('Error during audio processing:', audioProcessingError);
                         }
+                    };
+                } catch (audioContextError) {
+                    console.error('Error initializing audio context:', audioContextError);
+                }
+            })
+            .catch(streamError => {
+                console.error('Error accessing the microphone: ', streamError);
+            });
+    };
 
-                        const result = await response.json();
-                        document.getElementById('transcription').innerText = result.transcription;
-                    } catch (error) {
-                        console.error('Error trancribing audio:', error);
-                        "alert('There was an error transcribing the audio');"
-                    }
+    document.getElementById('stopButton').onclick = async function () {
+        try {
+            if (processor && audioContext) {
+                processor.disconnect();
+                audioContext.close();
+
+                // Step 6: Send remaining audio data
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const formData = new FormData();
+                formData.append('audio', audioBlob);
+
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData
                 });
-                document.getElementById('recordButton').disabled = true;
-                document.getElementById('stopButton').disabled = false;
-            } catch (error) {
-                console.error('Error accessing the audio stream:', error);
-                alert('There was an error accessing the audio stream.')
+
+                const data = await response.json();
+                console.log('Data successfully sent:', data);
+
+                // Reset chunks
+                audioChunks = [];
             }
-        });
-        document.getElementById('stopButton').addEventListener('click', () => {
-            mediaRecorder.stop();
-            document.getElementById('recordButton').disabled = false;
-            document.getElementById('stopButton').disabled = true;
-        });
-    </script>
+        } catch (error) {
+            console.error('Error stopping recording or sending data:', error);
+        }
+    };
+</script>
+
 {% endblock %}
